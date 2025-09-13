@@ -16,6 +16,15 @@ interface User {
   updatedAt: string
 }
 
+interface Newsletter {
+  id: string
+  subject: string
+  sentAt: string
+  user?: {
+    email: string
+  }
+}
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,7 +38,7 @@ export default function AdminDashboard() {
   const [previewContent, setPreviewContent] = useState<{subject: string, content: string} | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'users' | 'history'>('users')
-  const [newsletters, setNewsletters] = useState<any[]>([])
+  const [newsletters, setNewsletters] = useState<Newsletter[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
 
   useEffect(() => {
@@ -367,7 +376,7 @@ export default function AdminDashboard() {
                       </td>
                     </tr>
                   ) : (
-                    newsletters.map((newsletter) => (
+                    newsletters.map((newsletter: Newsletter) => (
                       <tr key={newsletter.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {newsletter.user?.email || 'Unknown'}

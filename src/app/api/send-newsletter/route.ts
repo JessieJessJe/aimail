@@ -133,11 +133,11 @@ export async function POST(request: NextRequest) {
     // Generate newsletter content based on user spec
     const newsletter = generateNewsletter(user.spec)
 
-    // For demo purposes, we'll just log the email instead of actually sending it
-    // In production, you would configure nodemailer with your email service
-    console.log('Newsletter would be sent to:', user.email)
+    // Use sample email address for now
+    const recipientEmail = 'onejessiehan@gmail.com'
+    
+    console.log('Sending newsletter to:', recipientEmail)
     console.log('Subject:', newsletter.subject)
-    console.log('Content preview:', newsletter.content.substring(0, 200) + '...')
 
     // Save newsletter to database
     const savedNewsletter = await prisma.newsletter.create({
@@ -148,10 +148,16 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // TODO: Uncomment and configure when ready to send actual emails
-    /*
-    const transporter = nodemailer.createTransporter({
-      // Configure your email service here
+    // Configure and send actual email
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !process.env.EMAIL_FROM) {
+      console.warn('Email configuration missing. Newsletter saved but not sent.')
+      return NextResponse.json({ 
+        message: 'Newsletter saved but email configuration missing',
+        newsletter: savedNewsletter
+      })
+    }
+
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
@@ -159,17 +165,34 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Enhanced HTML email with reply instructions
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Your Personalized Newsletter</h2>
+        ${newsletter.content}
+        <hr style="margin: 30px 0; border: 1px solid #eee;">
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+          <h3 style="color: #007bff; margin-top: 0;">💬 Want to discuss these stories?</h3>
+          <p style="margin: 10px 0;">Simply reply to this email and I'll respond with insights powered by Claude AI!</p>
+          <p style="font-size: 14px; color: #666; margin-bottom: 0;">Your replies will be processed by our AI assistant for personalized discussions about tech news.</p>
+        </div>
+      </div>
+    `
+
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
-      to: user.email,
+      to: recipientEmail,
       subject: newsletter.subject,
-      html: newsletter.content
+      html: htmlContent,
+      replyTo: process.env.EMAIL_FROM // Enable replies
     })
-    */
+
+    console.log('Newsletter sent successfully to:', recipientEmail)
 
     return NextResponse.json({ 
       message: 'Newsletter sent successfully',
-      newsletter: savedNewsletter
+      newsletter: savedNewsletter,
+      sentTo: recipientEmail
     })
   } catch (error) {
     console.error('Failed to send newsletter:', error)

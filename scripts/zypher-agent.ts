@@ -25,10 +25,11 @@ interface HNStory {
 
 // Interface for the command arguments
 interface CommandArgs {
-  action: 'getStories' | 'generateContent';
+  action: 'getStories' | 'generateContent' | 'chat';
   preferences?: string[];
   count?: number;
   userSpec?: any;
+  prompt?: string;
 }
 
 class ZypherHackerNewsService {
@@ -189,6 +190,31 @@ Return JSON: {"subject": "...", "content": "HTML with story links and brief summ
     }
   }
 
+  // Direct chat method for email responses
+  async chat(prompt: string): Promise<string> {
+    this.checkRateLimit();
+    
+    if (!this.agent) {
+      throw new Error('Zypher Agent not initialized');
+    }
+
+    try {
+      const event$ = this.agent.runTask(prompt, "claude-3-5-sonnet-20241022");
+      let fullResponse = '';
+      
+      for await (const event of this.eachValueFrom(event$)) {
+        if (event.type === 'text') {
+          fullResponse += event.content;
+        }
+      }
+      
+      return fullResponse.trim();
+    } catch (error) {
+      console.error('Chat error:', error);
+      throw error;
+    }
+  }
+
   private parseStoriesFromResponse(response: string): HNStory[] {
     try {
       // Try to extract JSON from the response
@@ -250,6 +276,14 @@ async function main() {
         const stories = await service.getTopStories(args.preferences || [], args.count || 5);
         const content = await service.generateNewsletterContent(args.userSpec, stories);
         console.log(JSON.stringify(content, null, 2));
+        break;
+      }
+      case 'chat': {
+        if (!args.prompt) {
+          throw new Error('Prompt is required for chat action');
+        }
+        const response = await service.chat(args.prompt);
+        console.log(response);
         break;
       }
       default:

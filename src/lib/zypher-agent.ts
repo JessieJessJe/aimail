@@ -1,5 +1,4 @@
 import { spawn } from 'child_process';
-import { promisify } from 'util';
 import path from 'path';
 
 // Helper function to safely get environment variables
@@ -17,11 +16,11 @@ async function executeDeno(scriptPath: string, args: any): Promise<any> {
     const denoPath = '/Users/jessiehan/.deno/bin/deno';
     const fullScriptPath = path.join(process.cwd(), scriptPath);
     
-    // Set a timeout of 15 seconds for faster response
+    // Set a timeout of 30 seconds for faster response
     const timeout = setTimeout(() => {
       child.kill('SIGTERM');
-      reject(new Error('Deno script execution timed out after 15 seconds'));
-    }, 15000);
+      reject(new Error('Deno script execution timed out after 30 seconds'));
+    }, 30000);
     
     const child = spawn(denoPath, [
       'run',
@@ -179,7 +178,7 @@ class HackerNewsService {
         preferences: userSpec.preferences?.topics || [],
         count: userSpec.length === 'short' ? 3 : userSpec.length === 'medium' ? 5 : 8
       });
-      return result;
+      return result as {subject: string, content: string} | null;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       
@@ -353,5 +352,47 @@ class HackerNewsService {
 }
 
 // Export singleton instance
+// Export function to call Zypher Agent directly for email responses
+export async function callZypherAgent(prompt: string): Promise<string> {
+  // Temporary mock response for testing - replace with actual Zypher call once performance is optimized
+  console.log('Mock Claude response for prompt:', prompt.substring(0, 50) + '...')
+  
+  // Simulate a realistic AI response based on the prompt content
+  if (prompt.toLowerCase().includes('ai') || prompt.toLowerCase().includes('artificial intelligence')) {
+    return `Thanks for your question about AI developments! Here are some key trends I'm seeing:
+
+• **Large Language Models**: Continued improvements in reasoning capabilities and multimodal understanding
+• **AI Agents**: More sophisticated autonomous systems that can perform complex tasks
+• **Edge AI**: Bringing AI capabilities directly to devices for better privacy and performance
+
+The field is moving incredibly fast, with new breakthroughs happening regularly. What specific aspect of AI interests you most?
+
+Best regards,
+Newsly AI Assistant`
+  }
+  
+  if (prompt.toLowerCase().includes('tech') || prompt.toLowerCase().includes('technology')) {
+    return `Great question about current tech trends! Here's what's catching my attention:
+
+• **AI Integration**: Every industry is finding ways to incorporate AI tools
+• **Quantum Computing**: Making steady progress toward practical applications
+• **Sustainable Tech**: Green energy solutions and carbon-neutral computing
+
+These developments are reshaping how we work and live. Are there any particular areas you'd like to explore further?
+
+Best,
+Newsly AI Assistant`
+  }
+  
+  return `Thanks for reaching out! I appreciate your engagement with the newsletter.
+
+Your message has been received and I'm here to help with any questions about technology, startups, or the latest developments in the tech world.
+
+Feel free to ask about specific topics you're interested in, and I'll do my best to provide insights and analysis.
+
+Best regards,
+Newsly AI Assistant`
+}
+
 export const hackerNewsService = new HackerNewsService();
 export type { HNStory };
