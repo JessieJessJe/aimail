@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-all src/lib/zypher-agent.ts"
+  },
+  "imports": {
+    "@corespeed/zypher": "jsr:@corespeed/zypher@^0.2.2",
+    "rxjs-for-await": "npm:rxjs-for-await"
+  },
+  "compilerOptions": {
+    "target": "es2020",
+    "lib": ["dom", "es2020"]
+  }
+}

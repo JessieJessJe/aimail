@@ -1,36 +1,146 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Newsly - AI-Powered Email Newsletter Agent
+
+An AI-powered email newsletter agent that works like a personalized WSJ daily briefing for HackerNews, featuring a conversational feedback loop with users.
+
+## Features
+
+### Admin Dashboard
+- **User Management**: View all registered users in a clean table interface
+- **Edit Spec Modal**: Customize user preferences and newsletter specifications
+- **Preview Newsletter**: See how the newsletter will look before sending
+- **Send Newsletter**: Dispatch personalized newsletters to individual users
+- **Add Users**: Register new users with email and optional name
+
+### User Interaction Workflow
+1. Users receive personalized HackerNews briefings via email
+2. Users can reply with natural language to:
+   - **Customize preferences**: "More on EU regs, less crypto, send at 8am"
+   - **Ask follow-up questions**: "Why does that change matter for reinsurers?"
+3. System responds via email and updates user specifications
+4. Admin can review changes and resend updated newsletters
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 with TypeScript
+- **UI Components**: Radix UI + Tailwind CSS
+- **Database**: SQLite with Prisma ORM
+- **Email**: Nodemailer (configured for production)
+- **AI Integration**: Ready for CoreSpeed + Zypher agent
+- **Data Feed**: Prepared for HackerNews MCP server
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Deno (for Zypher Agent integration)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone <your-repo-url>
+   cd newsly
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Then edit `.env.local` and add your actual API keys and configuration:
+   - `ANTHROPIC_API_KEY`: Get from [Anthropic Console](https://console.anthropic.com/)
+   - `DATABASE_URL`: Your database connection string
+   - Email configuration for newsletter sending
+
+5. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+### Security Notes
+
+⚠️ **Important**: Never commit sensitive information to your repository!
+
+- All `.env*` files (except `.env.example`) are automatically ignored by git
+- API keys, database credentials, and other secrets are excluded from version control
+- Use the provided `.env.example` as a template for required environment variables
+- For production deployment, set environment variables through your hosting platform's dashboard
+
+4. **Open the application**:
+   Visit [http://localhost:3000](http://localhost:3000)
+
+## Database Schema
+
+### Users Table
+- `id`: Unique identifier
+- `email`: User email address (unique)
+- `name`: Optional user name
+- `spec`: JSON specification for newsletter preferences
+- `createdAt`/`updatedAt`: Timestamps
+
+### Newsletters Table
+- `id`: Unique identifier
+- `userId`: Reference to user
+- `subject`: Email subject line
+- `content`: HTML email content
+- `sentAt`: Timestamp when sent
+
+## User Specification Format
+
+The `spec` field stores user preferences as JSON:
+
+```json
+{
+  "preferences": {
+    "topics": ["technology", "startups", "programming"],
+    "excludeTopics": ["crypto"],
+    "sendTime": "09:00",
+    "timezone": "UTC",
+    "frequency": "daily"
+  },
+  "tone": "professional",
+  "length": "medium",
+  "includeAnalysis": true
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API Endpoints
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Users
+- `GET /api/users` - List all users
+- `POST /api/users` - Create new user
+- `PUT /api/users/[id]` - Update user spec
+- `DELETE /api/users/[id]` - Delete user
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Newsletter
+- `POST /api/send-newsletter` - Send newsletter to specific user
 
-## Learn More
+## Development Status
 
-To learn more about Next.js, take a look at the following resources:
+### ✅ Completed
+- [x] Project setup with Next.js, TypeScript, Prisma
+- [x] Admin dashboard with user table
+- [x] Edit Spec modal for user preferences
+- [x] Preview Newsletter modal
+- [x] Send newsletter functionality (mock)
+- [x] Database schema and API routes
+- [x] Responsive UI with Tailwind CSS
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🚧 Next Steps
+- [ ] Email processing system for user replies
+- [ ] CoreSpeed + Zypher agent integration
+- [ ] HackerNews MCP server connection
+- [ ] Natural language spec updating
+- [ ] Production email configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Demo Data
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application includes three sample users:
+- **john.doe@example.com**: Tech/AI focused, 8am delivery
+- **jane.smith@example.com**: Programming focused, excludes crypto, 9:30am
+- **alex.johnson@example.com**: Security/blockchain focused, 7am delivery
