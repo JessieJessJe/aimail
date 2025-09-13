@@ -33,21 +33,39 @@
    - Click "New Project" → Import your `newsly` repository
    - Vercel auto-detects Next.js settings ✨
 
-3. **Add Environment Variables**
+3. **Set Up Database (CRITICAL)**
+   ⚠️ **You MUST use a cloud database for Vercel deployment**
+   
+   **Option A: Vercel Postgres (Recommended)**
+   - In Vercel dashboard: Storage → Create Database → Postgres
+   - Copy the connection string
+   
+   **Option B: Supabase (Free)**
+   - Create project at supabase.com
+   - Get PostgreSQL connection string
+
+4. **Add Environment Variables**
    In Vercel project settings, add:
    ```
-   DATABASE_URL=your_production_database_url
+   DATABASE_URL=postgresql://user:pass@host:port/dbname
    EMAIL_USER=your_gmail@gmail.com
    EMAIL_PASS=your_gmail_app_password
    EMAIL_FROM=your_gmail@gmail.com
-   ANTHROPIC_API_KEY=your_claude_api_key
+   ANTHROPIC_API_KEY=your_claude_api_key  
    NEXTAUTH_SECRET=generate_random_32_char_string
    NEXTAUTH_URL=https://your-app.vercel.app
    ```
 
-4. **Deploy**
+5. **Deploy**
    - Click "Deploy"
    - Wait ~2 minutes
+
+6. **Run Database Migration (One-time)**
+   After successful deployment:
+   ```bash
+   npx prisma db push
+   ```
+   This creates your database tables in production.
    - Your app is live! 🎉
 
 ### Option 2: Railway (Alternative)
