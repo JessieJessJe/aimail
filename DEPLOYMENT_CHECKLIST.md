@@ -85,15 +85,42 @@
 
 ## 🗄️ Database Setup
 
-### For Vercel Deployment:
+### Vercel PostgreSQL (Recommended) ✅
 
-**Option A: Vercel Postgres (Easiest)**
-```bash
-# In Vercel dashboard:
-# 1. Go to Storage tab
-# 2. Create Postgres database
-# 3. Copy connection string to DATABASE_URL
-```
+1. **Create Vercel Postgres Database**:
+   - Go to Vercel Dashboard → Storage → Create Postgres
+   - Vercel automatically generates 3 connection URLs:
+     - `DATABASE_URL_POSTGRES_URL` - Direct PostgreSQL
+     - `DATABASE_URL_PRISMA_DATABASE_URL` - **Use this one** (optimized for Prisma)
+     - `DATABASE_URL_DATABASE_URL` - Standard URL
+
+2. **Set Environment Variables**:
+   ```bash
+   # In Vercel Dashboard → Settings → Environment Variables
+   DATABASE_URL=[your_prisma_database_url]
+   ```
+
+3. **Update Local Environment**:
+   ```bash
+   # In .env.local (for development)
+   DATABASE_URL="prisma://accelerate.prisma-data.net/?api_key=..."
+   ```
+
+4. **Prisma Schema** (Already Updated ✅):
+   ```prisma
+   datasource db {
+     provider = "postgresql"
+     url      = env("DATABASE_URL")
+   }
+   ```
+
+5. **Deploy Schema**:
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
+
+### Alternative Options:
 
 **Option B: Supabase (Free tier)**
 ```bash
